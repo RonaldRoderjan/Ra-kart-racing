@@ -1,22 +1,22 @@
-const CACHE_NAME = 'kart-finance-cache-v2'; // Versão do cache atualizada
+const CACHE_NAME = 'kart-finance-cache-v3'; // Incrementamos a versão para forçar a atualização
 // Lista de arquivos para cachear na instalação
 const urlsToCache = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/manifest.json',
-    '/js/app.js',
-    '/js/auth.js',
-    '/js/db.js',
-    '/js/ui.js',
-    '/js/pdf.js',
-    '/js/supabaseClient.js', // ADICIONADO
-    '/icons/icon-192x192.png',
-    '/icons/apple-touch-icon.png',
-    // CDNs
+    '.', // Significa 'o diretório atual' (substitui '/')
+    'index.html',
+    'style.css',
+    'manifest.json',
+    'js/app.js',
+    'js/auth.js',
+    'js/db.js',
+    'js/ui.js',
+    'js/pdf.js',
+    'js/supabaseClient.js',
+    'icons/icon-192x192.png',
+    'icons/apple-touch-icon.png',
+    // CDNs não mudam
     'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2' // ADICIONADO
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
 // 1. Instalação: Abre o cache e armazena os assets
@@ -30,8 +30,7 @@ self.addEventListener('install', event => {
     );
 });
 
-// 2. Fetch: Intercepta requisições e serve do cache primeiro (Network falling back to cache)
-// Estratégia atualizada para PWA que fala com API: Tenta a rede primeiro.
+// 2. Fetch: Tenta a rede primeiro, depois o cache (para apps que usam API)
 self.addEventListener('fetch', event => {
     event.respondWith(
         fetch(event.request).catch(() => {
@@ -43,13 +42,13 @@ self.addEventListener('fetch', event => {
 
 // 3. Ativação: Limpa caches antigos
 self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
+    const cacheWhitelist = [CACHE_NAME]; // Agora v3
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
+                        return caches.delete(cacheName); // Deleta caches v1 e v2
                     }
                 })
             );
