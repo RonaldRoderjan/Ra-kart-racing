@@ -100,7 +100,7 @@ body {
 .dashboard-container {
     padding: 1.5rem;
 }
-#dashboard-grid {
+#admin-dashboard-grid {
     display: grid;
     grid-template-columns: 1fr; /* Mobile-first: 1 coluna */
     gap: 1.5rem;
@@ -287,7 +287,7 @@ textarea {
 
 /* 11. Media Queries (Desktop) */
 @media (min-width: 768px) {
-    #dashboard-grid {
+    #admin-dashboard-grid {
         /* 2 colunas para tablets */
         grid-template-columns: repeat(2, 1fr);
     }
@@ -297,7 +297,7 @@ textarea {
 }
 
 @media (min-width: 1024px) {
-    #dashboard-grid {
+    #admin-dashboard-grid {
         /* 3 colunas para desktops */
         grid-template-columns: repeat(3, 1fr);
     }

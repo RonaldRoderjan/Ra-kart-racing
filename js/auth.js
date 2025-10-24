@@ -1,9 +1,34 @@
 // js/auth.js
 
 const Auth = {
+    userProfile: null, // Cache para guardar o perfil (role, pilot_id)
+
     /**
-     * Tenta logar o usuário no Supabase.
-     * O Supabase gerencia o JWT automaticamente no LocalStorage.
+     * Busca o perfil do usuário logado (da tabela 'profiles')
+     */
+    async getUserProfile() {
+        if (this.userProfile) return this.userProfile; // Retorna do cache se já tiver
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return null;
+
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+        
+        if (error) {
+            console.error("Erro ao buscar perfil:", error.message);
+            return null;
+        }
+        
+        this.userProfile = profile; // Salva no cache
+        return profile;
+    },
+
+    /**
+     * Tenta logar o usuário. Se sucesso, busca o perfil e retorna a 'role'.
      */
     async login(email, password) {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -19,15 +44,24 @@ const Auth = {
             return { success: false, message: "Erro ao tentar logar." };
         }
         
-        return { success: true };
+        // Sucesso, agora busca o perfil
+        this.userProfile = null; // Limpa cache antigo
+        const profile = await this.getUserProfile();
+        
+        if (!profile) {
+            await this.logout(); // Desloga usuário se ele não tiver um perfil
+            return { success: false, message: "Usuário logado, mas sem perfil de permissão." };
+        }
+
+        return { success: true, role: profile.role }; // Retorna a 'role' para o app.js
     },
 
     /**
-     * Desloga o usuário.
-     * O Supabase limpa o JWT do LocalStorage.
+     * Desloga o usuário e limpa o cache do perfil.
      */
     async logout() {
         const { error } = await supabase.auth.signOut();
+        this.userProfile = null; // Limpa o cache do perfil
         if (error) {
             console.error('Erro no logout:', error.message);
         }
@@ -35,16 +69,10 @@ const Auth = {
     },
 
     /**
-     * Verifica se existe uma sessão de usuário válida (JWT) no LocalStorage.
+     * Verifica se existe uma sessão de usuário válida.
      */
     async isAuthenticated() {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-            console.error("Erro ao verificar sessão:", error.message);
-            return false;
-        }
-        
+        const { data: { session } } = await supabase.auth.getSession();
         return !!session;
     },
 
@@ -53,18 +81,16 @@ const Auth = {
      */
     async checkAuth() {
         if (await this.isAuthenticated()) {
-            UI.showView('app-view');
-            await UI.renderDashboard(); // Precisa de 'await'
+            const profile = await this.getUserProfile();
+            if (profile) {
+                // Deixa o app.js decidir para onde ir
+                await App.routeUser(profile.role);
+            } else {
+                console.warn("Usuário autenticado mas sem perfil. Deslogando.");
+                await this.logout(); // Perfil não encontrado, desloga
+            }
         } else {
             UI.showView('login-view');
         }
-    },
-    
-    /**
-     * Helper para pegar os dados do usuário logado (ex: email), se necessário.
-     */
-    async getCurrentUser() {
-        const { data: { user } } = await supabase.auth.getUser();
-        return user;
     }
 };

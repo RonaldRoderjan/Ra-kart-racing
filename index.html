@@ -5,16 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <title>Kart Finance</title>
-    <link rel="manifest" href="site.webmanifest.json">
+    <link rel="manifest" href="site.webmanifest"> 
     <meta name="theme-color" content="#1a1a1a">
-
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kart Finance">
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-
     <link rel="icon" href="icons/icon-192x192.png" sizes="192x192">
-
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -24,7 +21,8 @@
             <h2>Kart Finance</h2>
             <form id="login-form">
                 <div class="form-group">
-                    <label for="email">Email</label> <input type="email" id="email" required>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Senha</label>
@@ -36,9 +34,9 @@
         </div>
     </section>
 
-    <section id="app-view" class="view">
+    <section id="admin-dashboard-view" class="view">
         <header class="app-header">
-            <h1>Dashboard</h1>
+            <h1>Admin Dashboard</h1>
             <div class="header-actions">
                 <button id="add-pilot-btn" class="btn btn-primary">+ Novo Piloto</button>
                 <button id="logout-btn" class="btn btn-secondary">Sair</button>
@@ -47,18 +45,34 @@
 
         <main class="dashboard-container">
             <div id="dashboard-loading" class="hidden">Carregando pilotos...</div>
-            
-            <div id="dashboard-grid">
+            <div id="admin-dashboard-grid">
                 </div>
         </main>
     </section>
+
+    <section id="pilot-dashboard-view" class="view">
+        <header class="app-header">
+            <h1>Área do Piloto</h1>
+            <div class="header-actions">
+                <button id="pilot-logout-btn" class="btn btn-secondary">Sair</button>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <div id="pilot-loading" class="hidden">Carregando seus dados...</div>
+            <div id="pilot-content">
+                </div>
+        </main>
+    </section>
+
 
     <div id="pilot-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal-id="pilot-modal">&times;</span>
             <h3 id="pilot-modal-title">Novo Piloto</h3>
             <form id="pilot-form">
-                <input type="hidden" id="pilot-id"> <div class="form-group">
+                <input type="hidden" id="pilot-id">
+                <div class="form-group">
                     <label for="pilot-name">Nome</label>
                     <input type="text" id="pilot-name" required>
                 </div>
@@ -121,6 +135,7 @@
         </div>
     </div>
 
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -131,5 +146,6 @@
     <script src="js/db.js"></script>
     <script src="js/pdf.js"></script>
     <script src="js/ui.js"></script>
-    <script src="js/app.js"></script> </body>
+    <script src="js/app.js"></script>
+</body>
 </html>

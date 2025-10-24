@@ -3,41 +3,63 @@
 const App = {
     
     async init() {
-        // 1. Registrar o Service Worker
+        // 1. Registrar o Service Worker (caminho RELATIVO para dev)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => console.log('Service Worker registrado:', registration.scope))
+                navigator.serviceWorker.register('service-worker.js', { scope: '.' }) 
+                    .then(registration => console.log('Service Worker (dev) registrado:', registration.scope)) 
                     .catch(error => console.log('Falha no registro do Service Worker:', error));
             });
         }
 
-        // 2. Verificar autenticação (agora é async)
+        // 2. Verificar autenticação
         await Auth.checkAuth();
 
         // 3. Adicionar Event Listeners globais
         this.addEventListeners();
 
-        // 4. Iniciar "Cron Job" simulado para fechamento automático
+        // 4. Iniciar "Cron Job" de fechamento
         setInterval(() => {
-            // A verificação de auth é síncrona, o DB.checkAutoClosing é async
             Auth.isAuthenticated().then(isAuth => {
                 if (isAuth) {
-                    DB.checkAutoClosing();
+                    Auth.getUserProfile().then(profile => {
+                        if (profile && profile.role === 'admin') {
+                            DB.checkAutoClosing();
+                        }
+                    });
                 }
             });
-        }, 3600000); // A cada 1 hora
+        }, 3600000); 
+    },
+
+    /**
+     * Direciona o usuário para a view correta com base na sua role.
+     */
+    async routeUser(role) {
+        if (role === 'admin') {
+            UI.showView('admin-dashboard-view');
+            await UI.renderAdminDashboard();
+        } else if (role === 'piloto') {
+            UI.showView('pilot-dashboard-view');
+            await UI.renderPilotDashboard();
+        } else {
+            console.error("Role desconhecida:", role);
+            await Auth.logout();
+        }
     },
 
     addEventListeners() {
         // --- Autenticação ---
-        document.getElementById('login-form').addEventListener('submit', this.handleLogin);
-        document.getElementById('logout-btn').addEventListener('click', Auth.logout);
+        // CORREÇÃO: Usamos (e) => this.handleLogin(e) para manter o 'this'
+        document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e)); 
+        document.getElementById('logout-btn').addEventListener('click', Auth.logout); // Logout do Admin
+        document.getElementById('pilot-logout-btn').addEventListener('click', Auth.logout); // Logout do Piloto
 
-        // --- Abertura de Modais ---
-        document.getElementById('add-pilot-btn').addEventListener('click', this.handleOpenAddPilotModal);
+        // --- Abertura de Modais (Admin) ---
+        // CORREÇÃO: Usamos () => this.handleOpenAddPilotModal()
+        document.getElementById('add-pilot-btn').addEventListener('click', () => this.handleOpenAddPilotModal()); 
         
-        // --- Fechamento de Modais ---
+        // --- Fechamento de Modais (Estava OK, mas padronizando) ---
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', (e) => UI.closeModal(e.target.dataset.modalId));
         });
@@ -47,13 +69,14 @@ const App = {
             }
         });
 
-        // --- Submissão de Formulários ---
-        document.getElementById('pilot-form').addEventListener('submit', this.handlePilotSubmit);
-        document.getElementById('expense-form').addEventListener('submit', this.handleExpenseSubmit);
-        document.getElementById('reimbursement-form').addEventListener('submit', this.handleReimbursementSubmit);
+        // --- Submissão de Formulários (Admin) ---
+        // CORREÇÃO: Usamos (e) => this.handle...
+        document.getElementById('pilot-form').addEventListener('submit', (e) => this.handlePilotSubmit(e)); 
+        document.getElementById('expense-form').addEventListener('submit', (e) => this.handleExpenseSubmit(e)); 
+        document.getElementById('reimbursement-form').addEventListener('submit', (e) => this.handleReimbursementSubmit(e)); 
     },
 
-    // --- Handlers de Eventos (AGORA SÃO ASYNC) ---
+    // --- Handlers de Eventos ---
 
     async handleLogin(e) {
         e.preventDefault();
@@ -65,23 +88,40 @@ const App = {
         
         if (result.success) {
             errorEl.textContent = '';
-            UI.showView('app-view');
-            await UI.renderDashboard(); // Precisa de 'await'
+            // Agora 'this.routeUser' vai funcionar
+            await this.routeUser(result.role); 
         } else {
             errorEl.textContent = result.message;
         }
     },
 
-    // --- Handlers de Piloto ---
+    /**
+     * Handler para Excluir Piloto (Admin)
+     */
+    async handleDeletePilot(pilotId, pilotName) {
+        if (!confirm(`Tem certeza que deseja excluir ${pilotName}?\n\nATENÇÃO: Isso deleta o piloto, mas por enquanto NÃO deleta a conta de login dele.`)) {
+            return;
+        }
+        
+        try {
+            await DB.deletePilot(pilotId);
+            await UI.renderAdminDashboard(); // Atualiza a tela
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao excluir piloto.");
+        }
+    },
+
+    // --- Handlers de Admin ---
     handleOpenAddPilotModal() {
         UI.resetPilotForm();
         UI.openModal('pilot-modal');
     },
     
     async handleOpenEditPilotModal(pilotId) {
-        const pilot = await DB.getPilotById(pilotId); // 'await'
+        const pilot = await DB.getPilotById(pilotId); 
         if (pilot) {
-            UI.populatePilotForm(pilot);
+            await UI.populatePilotForm(pilot); 
             UI.openModal('pilot-modal');
         }
     },
@@ -98,22 +138,21 @@ const App = {
         };
         
         try {
-            await DB.addOrUpdatePilot(pilotData); // 'await'
+            await DB.addOrUpdatePilot(pilotData); 
             UI.closeModal('pilot-modal');
-            await UI.renderDashboard(); // 'await'
+            await UI.renderAdminDashboard(); 
         } catch (err) {
             console.error(err);
             alert("Erro ao salvar piloto.");
         }
     },
 
-    // --- Handlers Financeiros (Gasto e Reembolso) ---
+    // --- Handlers Financeiros (Admin) ---
     handleOpenExpenseModal(pilotId) {
         document.getElementById('expense-pilot-id').value = pilotId;
         document.getElementById('expense-form').reset();
         UI.openModal('expense-modal');
     },
-
     async handleExpenseSubmit(e) {
         e.preventDefault();
         const pilotId = document.getElementById('expense-pilot-id').value;
@@ -122,22 +161,20 @@ const App = {
 
         if(pilotId && desc && amount) {
             try {
-                await DB.addExpense(pilotId, desc, amount); // 'await'
+                await DB.addExpense(pilotId, desc, amount); 
                 UI.closeModal('expense-modal');
-                await UI.updatePilotCard(pilotId); // 'await' (que vai re-renderizar o dashboard)
+                await UI.renderAdminDashboard(); 
             } catch (err) {
                 console.error(err);
                 alert("Erro ao adicionar gasto.");
             }
         }
     },
-    
     handleOpenReimbursementModal(pilotId) {
         document.getElementById('reimbursement-pilot-id').value = pilotId;
         document.getElementById('reimbursement-form').reset();
         UI.openModal('reimbursement-modal');
     },
-    
     async handleReimbursementSubmit(e) {
         e.preventDefault();
         const pilotId = document.getElementById('reimbursement-pilot-id').value;
@@ -146,9 +183,9 @@ const App = {
 
         if(pilotId && desc && amount) {
             try {
-                await DB.addReimbursement(pilotId, desc, amount); // 'await'
+                await DB.addReimbursement(pilotId, desc, amount); 
                 UI.closeModal('reimbursement-modal');
-                await UI.updatePilotCard(pilotId); // 'await'
+                await UI.renderAdminDashboard(); 
             } catch (err) {
                 console.error(err);
                 alert("Erro ao adicionar reembolso.");
@@ -157,7 +194,7 @@ const App = {
     }
 };
 
-// Inicializa a aplicação quando o DOM estiver pronto
+// Inicializa a aplicação
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
 });

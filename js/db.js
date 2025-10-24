@@ -3,7 +3,10 @@
 const DB = {
 
     /**
-     * Busca todos os pilotos E seus gastos/reembolsos APENAS DO MÊS CORRENTE.
+     * Busca pilotos.
+     * RLS (Segurança) no Supabase filtra automaticamente:
+     * - Se Admin: Retorna TODOS os pilotos.
+     * - Se Piloto: Retorna APENAS o piloto associado.
      */
     async getPilots() {
         const today = new Date();
@@ -27,12 +30,11 @@ const DB = {
             console.error('Erro ao buscar pilotos e transações:', error.message);
             return [];
         }
-
         return pilots;
     },
 
     /**
-     * Busca um único piloto pelo ID.
+     * Busca um único piloto pelo ID (Função de Admin).
      */
     async getPilotById(id) {
         const { data, error } = await supabase
@@ -49,7 +51,7 @@ const DB = {
     },
 
     /**
-     * Adiciona ou atualiza um piloto no banco de dados.
+     * Adiciona ou atualiza um piloto (Função de Admin).
      */
     async addOrUpdatePilot(pilotData) {
         const dataToSave = {
@@ -77,12 +79,27 @@ const DB = {
 
         if (error) {
             console.error('Erro ao salvar piloto:', error.message);
-            throw new Error(error.message); // Lança o erro para o app.js tratar
+            throw new Error(error.message); 
         }
     },
 
     /**
-     * Calcula os totais com base nos dados JÁ FILTRADOS que vêm do Supabase.
+     * Deleta um piloto (Função de Admin).
+     */
+    async deletePilot(pilotId) {
+        const { error } = await supabase
+            .from('pilots')
+            .delete()
+            .eq('id', pilotId);
+        
+        if (error) {
+            console.error('Erro ao deletar piloto:', error.message);
+            throw new Error(error.message);
+        }
+    },
+
+    /**
+     * Calcula os totais
      */
     calculateTotals(pilot) {
         const totalExpenses = pilot.expenses.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -132,15 +149,12 @@ const DB = {
         }
     },
 
-    // --- LÓGICA DE FECHAMENTO ---
+    // --- LÓGICA DE FECHAMENTO (Função de Admin) ---
 
-    /**
-     * Verifica se algum piloto precisa ter o mês fechado hoje.
-     */
     async checkAutoClosing() {
         console.log("Verificando fechamentos automáticos...");
         const today = new Date().getDate(); 
-        const currentMonthRef = new Date().toISOString().slice(0, 7); // "2025-10"
+        const currentMonthRef = new Date().toISOString().slice(0, 7); 
 
         const { data: pilots, error: pilotsError } = await supabase
             .from('pilots')
@@ -172,19 +186,8 @@ const DB = {
                 }
             }
         }
-        
-        // Se algum piloto foi fechado, atualiza o dashboard
-        if (wasClosed) {
-            // Não podemos chamar UI.renderDashboard() diretamente daqui
-            // O ideal é emitir um evento, mas por simplicidade,
-            // o dashboard será atualizado na próxima vez que o app for carregado.
-            // Para testes, você pode forçar um reload: location.reload();
-        }
     },
 
-    /**
-     * Executa o processo de fechamento para um piloto.
-     */
     async performClosing(pilotId) {
         const today = new Date();
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
