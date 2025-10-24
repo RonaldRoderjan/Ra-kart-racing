@@ -1,10 +1,10 @@
-const CACHE_NAME = 'kart-finance-cache-v3'; // Incrementamos a versão para forçar a atualização
+const CACHE_NAME = 'kart-finance-cache-v4'; // ATUALIZADO: Versão 4
 // Lista de arquivos para cachear na instalação
 const urlsToCache = [
-    '.', // Significa 'o diretório atual' (substitui '/')
+    '.', 
     'index.html',
     'style.css',
-    'manifest.json',
+    'site.webmanifest', // ATUALIZADO: Novo nome do manifest
     'js/app.js',
     'js/auth.js',
     'js/db.js',
@@ -24,31 +24,30 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Cache aberto');
+                console.log('Cache v4 aberto');
                 return cache.addAll(urlsToCache);
             })
     );
 });
 
-// 2. Fetch: Tenta a rede primeiro, depois o cache (para apps que usam API)
+// 2. Fetch: Tenta a rede primeiro, depois o cache
 self.addEventListener('fetch', event => {
     event.respondWith(
         fetch(event.request).catch(() => {
-            // Se a rede falhar (offline), tenta pegar do cache
             return caches.match(event.request);
         })
     );
 });
 
-// 3. Ativação: Limpa caches antigos
+// 3. Ativação: Limpa caches antigos (v1, v2, v3)
 self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME]; // Agora v3
+    const cacheWhitelist = [CACHE_NAME]; // Agora v4
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName); // Deleta caches v1 e v2
+                        return caches.delete(cacheName); // Deleta caches antigos
                     }
                 })
             );

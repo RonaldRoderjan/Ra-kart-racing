@@ -1,8 +1,8 @@
 {
-    "name": "RA kart racing",
-    "short_name": "RA kart racing",
-    "description": "Gerenciamento Financeiro",
-    "start_url": ".",
+    "name": "Kart Finance",
+    "short_name": "KartFin",
+    "description": "Gerenciamento Financeiro para Equipes de Kart",
+    "start_url": "index.html",
     "display": "standalone",
     "background_color": "#1a1a1a",
     "theme_color": "#1a1a1a",
