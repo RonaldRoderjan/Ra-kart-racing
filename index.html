@@ -10,10 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Kart Finance">
-    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-    <link rel="icon" href="icons/icon-192x192.png" sizes="192x192">
-    <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png"> <link rel="icon" href="icons/icon-192x192.png" sizes="192x192"> <link rel="stylesheet" href="style.css"> </head>
 <body>
 
     <section id="login-view" class="view active">
@@ -86,15 +83,14 @@
             <span class="close-modal" data-modal-id="pilot-modal">&times;</span>
             <h3 id="pilot-modal-title">Novo Piloto</h3>
             <form id="pilot-form">
-                <input type="hidden" id="pilot-id">
+                <input type="hidden" id="pilot-id"> <h4>Dados do Piloto</h4>
                 <div class="form-group">
                     <label for="pilot-name">Nome</label>
                     <input type="text" id="pilot-name" required>
                 </div>
                 <div class="form-group">
                     <label for="pilot-category">Categoria</label>
-                    <input type="text" id="pilot-category" placeholder="Ex: 125cc, F4, Cadete" required>
-                </div>
+                    <input type="text" id="pilot-category" placeholder="Ex: 125cc, F4, Cadete"> </div>
                 <div class="form-group">
                     <label for="pilot-fee">Mensalidade (R$)</label>
                     <input type="number" id="pilot-fee" step="0.01" required>
@@ -107,7 +103,21 @@
                     <label for="pilot-obs">Observações</label>
                     <textarea id="pilot-obs" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Salvar</button>
+
+                <div id="pilot-login-fields">
+                    <hr style="border-color: var(--color-surface-light); margin: 20px 0;">
+                    <h4>Dados de Login do Piloto</h4>
+                    <div class="form-group">
+                        <label for="pilot-email">Email de Login</label>
+                        <input type="email" id="pilot-email" required> </div>
+                    <div class="form-group">
+                        <label for="pilot-password">Senha de Login (Opcional)</label>
+                        <input type="password" id="pilot-password" placeholder="Deixe em branco para gerar senha temporária">
+                         <small style="color: var(--color-text-secondary); font-size: 0.8rem;">Se gerada, a senha aparecerá em um alerta após salvar.</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Salvar Piloto</button>
             </form>
         </div>
     </div>
@@ -149,6 +159,17 @@
             </form>
         </div>
     </div>
+
+    <div id="statement-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="statement-modal">&times;</span>
+            <h3 id="statement-modal-title">Extrato Detalhado do Mês</h3>
+            <div id="statement-modal-content" style="margin-top: 1.5rem;">
+                <p>Carregando extrato...</p> 
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>

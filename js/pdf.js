@@ -9,7 +9,9 @@ const PDF = {
      */
     generateReport: async (pilot, totals) => {
         const doc = new jsPDF();
-        const closingMonth = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        // Usa o mês atual para referência no PDF gerado na hora
+        const currentMonth = new Date();
+        const closingMonth = currentMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         
         // 1. Cabeçalho
         // (Adicione seu logo aqui)
@@ -19,9 +21,9 @@ const PDF = {
         doc.text('Relatório de Fechamento Mensal', 105, 20, { align: 'center' });
         doc.setFontSize(12);
         doc.text(`Piloto: ${pilot.name}`, 15, 40);
-        doc.text(`Categoria: ${pilot.category}`, 15, 47);
+        doc.text(`Categoria: ${pilot.category || 'N/A'}`, 15, 47); // Fallback
         doc.text(`Mês de Referência: ${closingMonth}`, 105, 40, { align: 'center' });
-        doc.text(`Data de Fechamento: ${new Date().toLocaleDateString('pt-BR')}`, 195, 40, { align: 'right' });
+        doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')}`, 195, 40, { align: 'right' }); // Mudado para Emissão
         
         doc.setLineWidth(0.5);
         doc.line(15, 55, 195, 55);
@@ -36,7 +38,7 @@ const PDF = {
             theme: 'striped',
             headStyles: { fillColor: [44, 44, 44] }, // Cor --color-surface
             body: [
-                ['Mensalidade Base', `R$ ${parseFloat(pilot.baseFee).toFixed(2)}`],
+                ['Mensalidade Base', `R$ ${parseFloat(pilot.baseFee || 0).toFixed(2)}`],
                 ['Total de Gastos Extras', `R$ ${totals.totalExpenses.toFixed(2)}`],
                 ['Total de Reembolsos', `(R$ ${totals.totalReimbursements.toFixed(2)})`],
             ],
@@ -48,36 +50,38 @@ const PDF = {
 
         let finalY = doc.autoTable.previous.finalY;
 
-        // 3. Detalhamento de Gastos Extras
-        if (pilot.expenses.length > 0) {
+        // 3. Detalhamento de Gastos Extras (usa pilot.expenses que já são do mês atual)
+        const expenses = pilot.expenses || []; // Garante array
+        if (expenses.length > 0) {
             doc.setFontSize(16);
             doc.text('Detalhes: Gastos Extras', 15, finalY + 15);
             doc.autoTable({
                 startY: finalY + 20,
                 theme: 'grid',
                 head: [['Data', 'Descrição', 'Valor (R$)']],
-                body: pilot.expenses.map(item => [
-                    new Date(item.created_at).toLocaleDateString('pt-BR'),
-                    item.description,
-                    parseFloat(item.amount).toFixed(2)
+                body: expenses.map(item => [
+                    new Date(item.created_at).toLocaleDateString('pt-BR', { timeZone: 'UTC' }), // Usa UTC
+                    item.description || 'N/A',
+                    parseFloat(item.amount || 0).toFixed(2)
                 ]),
                 foot: [['', 'Total Extras', totals.totalExpenses.toFixed(2)]]
             });
             finalY = doc.autoTable.previous.finalY;
         }
 
-        // 4. Detalhamento de Reembolsos
-        if (pilot.reimbursements.length > 0) {
+        // 4. Detalhamento de Reembolsos (usa pilot.reimbursements que já são do mês atual)
+        const reimbursements = pilot.reimbursements || []; // Garante array
+        if (reimbursements.length > 0) {
             doc.setFontSize(16);
             doc.text('Detalhes: Reembolsos', 15, finalY + 15);
             doc.autoTable({
                 startY: finalY + 20,
                 theme: 'grid',
                 head: [['Data', 'Descrição', 'Valor (R$)']],
-                body: pilot.reimbursements.map(item => [
-                    new Date(item.created_at).toLocaleDateString('pt-BR'),
-                    item.description,
-                    parseFloat(item.amount).toFixed(2)
+                body: reimbursements.map(item => [
+                    new Date(item.created_at).toLocaleDateString('pt-BR', { timeZone: 'UTC' }), // Usa UTC
+                    item.description || 'N/A',
+                    parseFloat(item.amount || 0).toFixed(2)
                 ]),
                 foot: [['', 'Total Reembolsos', totals.totalReimbursements.toFixed(2)]]
             });

@@ -259,6 +259,8 @@ textarea {
     max-width: 500px;
     position: relative;
     animation: slideIn 0.3s;
+    max-height: 80vh; /* Limita altura para caber na tela */
+    overflow-y: auto; /* Adiciona scroll se necessário */
 }
 .close-modal {
     color: var(--color-text-secondary);
@@ -304,7 +306,7 @@ textarea {
     }
 }
 
-/* 12. NOVO: Estilos da Tela de Histórico */
+/* 12. Estilos da Tela de Histórico */
 #history-list {
     display: flex;
     flex-direction: column;
@@ -330,4 +332,50 @@ textarea {
 .history-item-info span:last-child {
     font-size: 1rem;
     color: var(--color-text-secondary);
+}
+
+/* 13. Estilos do Modal de Extrato Detalhado */
+#statement-modal-content h4 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-primary);
+    border-bottom: 1px solid var(--color-surface-light);
+    padding-bottom: 0.3rem;
+}
+.statement-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+.statement-table th,
+.statement-table td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid var(--color-surface-light);
+}
+.statement-table th {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+.statement-table td:last-child {
+    text-align: right;
+    font-weight: 600;
+}
+.statement-table tr:last-child td {
+    border-bottom: none;
+}
+.statement-summary {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-primary);
+    font-size: 1.1rem;
+}
+.statement-summary p {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+.statement-summary p strong {
+    font-size: 1.3rem;
+    color: var(--color-primary);
 }
