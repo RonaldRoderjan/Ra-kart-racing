@@ -52,14 +52,13 @@ const App = {
         // --- Autenticação ---
         // CORREÇÃO: Usamos (e) => this.handleLogin(e) para manter o 'this'
         document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e)); 
-        document.getElementById('logout-btn').addEventListener('click', Auth.logout); // Logout do Admin
-        document.getElementById('pilot-logout-btn').addEventListener('click', Auth.logout); // Logout do Piloto
+        document.getElementById('logout-btn').addEventListener('click', () => Auth.logout()); // Padronizado
+        document.getElementById('pilot-logout-btn').addEventListener('click', () => Auth.logout()); 
 
         // --- Abertura de Modais (Admin) ---
-        // CORREÇÃO: Usamos () => this.handleOpenAddPilotModal()
         document.getElementById('add-pilot-btn').addEventListener('click', () => this.handleOpenAddPilotModal()); 
         
-        // --- Fechamento de Modais (Estava OK, mas padronizando) ---
+        // --- Fechamento de Modais ---
         document.querySelectorAll('.close-modal').forEach(btn => {
             btn.addEventListener('click', (e) => UI.closeModal(e.target.dataset.modalId));
         });
@@ -70,7 +69,6 @@ const App = {
         });
 
         // --- Submissão de Formulários (Admin) ---
-        // CORREÇÃO: Usamos (e) => this.handle...
         document.getElementById('pilot-form').addEventListener('submit', (e) => this.handlePilotSubmit(e)); 
         document.getElementById('expense-form').addEventListener('submit', (e) => this.handleExpenseSubmit(e)); 
         document.getElementById('reimbursement-form').addEventListener('submit', (e) => this.handleReimbursementSubmit(e)); 
@@ -88,11 +86,17 @@ const App = {
         
         if (result.success) {
             errorEl.textContent = '';
-            // Agora 'this.routeUser' vai funcionar
             await this.routeUser(result.role); 
         } else {
             errorEl.textContent = result.message;
         }
+    },
+
+    /**
+     * NOVO: Handler para ver o Histórico
+     */
+    async handleViewHistory(pilotId, pilotName, fromView) {
+        await UI.renderHistory(pilotId, pilotName, fromView);
     },
 
     /**
@@ -105,7 +109,7 @@ const App = {
         
         try {
             await DB.deletePilot(pilotId);
-            await UI.renderAdminDashboard(); // Atualiza a tela
+            await UI.renderAdminDashboard(); 
         } catch (err) {
             console.error(err);
             alert("Erro ao excluir piloto.");

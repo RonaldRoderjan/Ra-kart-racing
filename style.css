@@ -165,6 +165,7 @@ body {
     padding: 1rem 1.5rem;
     background-color: var(--color-surface-light);
     display: flex;
+    flex-wrap: wrap; /* Permite que os botões quebrem a linha */
     gap: 10px;
 }
 
@@ -301,4 +302,32 @@ textarea {
         /* 3 colunas para desktops */
         grid-template-columns: repeat(3, 1fr);
     }
+}
+
+/* 12. NOVO: Estilos da Tela de Histórico */
+#history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius);
+    border-left: 5px solid var(--color-primary);
+}
+.history-item-info {
+    display: flex;
+    flex-direction: column;
+}
+.history-item-info span:first-child {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+.history-item-info span:last-child {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
 }

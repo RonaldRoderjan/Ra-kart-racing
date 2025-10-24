@@ -27,7 +27,6 @@ const UI = {
         grid.innerHTML = ''; 
         loading.classList.remove('hidden');
         
-        // RLS garante que o Admin vê TODOS os pilotos
         const pilots = await DB.getPilots(); 
         
         loading.classList.add('hidden');
@@ -38,11 +37,11 @@ const UI = {
         }
 
         pilots.forEach(pilot => {
-            const card = this.createAdminPilotCard(pilot); // Card de Admin
+            const card = this.createAdminPilotCard(pilot); 
             grid.appendChild(card);
         });
 
-        this.addAdminCardEventListeners(); // Listeners de Admin
+        this.addAdminCardEventListeners(); 
     },
 
     // --- Renderização do Dashboard (PILOTO) ---
@@ -54,7 +53,6 @@ const UI = {
         content.innerHTML = '';
         loading.classList.remove('hidden');
         
-        // RLS garante que o Piloto vê APENAS O SEU piloto
         const pilots = await DB.getPilots(); 
         
         loading.classList.add('hidden');
@@ -64,7 +62,7 @@ const UI = {
             return;
         }
 
-        const myPilot = pilots[0]; // Pega o único piloto do array
+        const myPilot = pilots[0]; 
         const totals = DB.calculateTotals(myPilot);
 
         // Renderiza a view do piloto
@@ -96,8 +94,8 @@ const UI = {
                     </div>
                 </div>
                 <div class="card-footer">
-                    <button class="btn btn-primary" id="view-statement-btn">Ver Extrato Detalhado</button>
-                    <button class="btn btn-secondary" id="view-history-btn">Ver Histórico</button>
+                    <button class="btn btn-primary" id="view-statement-btn" data-pilot-id="${myPilot.id}">Ver Extrato Detalhado</button>
+                    <button class="btn btn-secondary" id="view-history-btn" data-pilot-id="${myPilot.id}" data-pilot-name="${myPilot.name}">Ver Histórico</button>
                 </div>
             </div>
 
@@ -106,15 +104,80 @@ const UI = {
                 <p>Valor Total: <strong>R$ ${totals.totalMonth.toFixed(2)}</strong></p>
                 <p style="margin-top: 10px;">Chave PIX (CNPJ):</p>
                 <p><strong>12.345.678/0001-99</strong></p>
-                </div>
+            </div>
         `;
         
-        // (Adicionaremos listeners para 'view-statement-btn' etc. depois)
+        // ADICIONA O LISTENER PARA O BOTÃO DE HISTÓRICO
+        // (Usamos .onclick para garantir que o listener é re-adicionado)
+        document.getElementById('view-history-btn').onclick = (e) => {
+            const pilotId = e.target.dataset.pilotId;
+            const pilotName = e.target.dataset.pilotName;
+            App.handleViewHistory(pilotId, pilotName, 'pilot-dashboard-view'); // Passa de onde viemos
+        };
+    },
+    
+    /**
+     * NOVO: Renderiza a tela de Histórico
+     */
+    async renderHistory(pilotId, pilotName, fromView) {
+        const list = document.getElementById('history-list');
+        const loading = document.getElementById('history-loading');
+        const title = document.getElementById('history-pilot-name');
+        const header = document.querySelector('#history-view .app-header .header-actions');
+        if (!list || !loading || !title || !header) return;
+
+        list.innerHTML = '';
+        loading.classList.remove('hidden');
+        title.textContent = `Piloto: ${pilotName}`;
+
+        // Adiciona o botão "Voltar"
+        header.innerHTML = `<button id="history-back-btn" class="btn btn-secondary">Voltar</button>`;
+        document.getElementById('history-back-btn').onclick = () => {
+            UI.showView(fromView); // Volta para a tela de onde veio
+        };
+
+        const history = await DB.getHistory(pilotId);
+        loading.classList.add('hidden');
+
+        if (history.length === 0) {
+            list.innerHTML = '<p>Nenhum histórico de fechamento encontrado.</p>';
+            return;
+        }
+
+        history.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = 'history-item';
+            
+            itemEl.innerHTML = `
+                <div class="history-item-info">
+                    <span>${new Date(item.month_reference + '-02').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</span>
+                    <span>Total: R$ ${parseFloat(item.total_amount).toFixed(2)}</span>
+                </div>
+                <button class="btn btn-primary btn-small download-pdf-btn" data-path="${item.pdf_path}">Baixar PDF</button>
+            `;
+            list.appendChild(itemEl);
+        });
+
+        // Adiciona listeners aos botões de download
+        this.addHistoryEventListeners();
+        UI.showView('history-view'); // Mostra a tela
     },
 
+    /**
+     * NOVO: Adiciona listeners aos botões de Download de PDF
+     */
+    addHistoryEventListeners() {
+        document.querySelectorAll('.download-pdf-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const pdfPath = e.currentTarget.dataset.path;
+                const pdfUrl = DB.getPdfUrl(pdfPath);
+                window.open(pdfUrl, '_blank'); // Abre o PDF em uma nova aba
+            };
+        });
+    },
 
     /**
-     * Cria o Card para a view de Admin (com botão de Excluir)
+     * Cria o Card para a view de Admin (com botão de Histórico)
      */
     createAdminPilotCard(pilot) {
         const totals = DB.calculateTotals(pilot);
@@ -129,7 +192,7 @@ const UI = {
                     <h3>${pilot.name}</h3>
                     <span class="pilot-category">${pilot.category}</span>
                 </div>
-                <div style="display: flex; gap: 5px;">
+                <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                     <button class="btn btn-secondary btn-small edit-pilot-btn" data-pilot-id="${pilot.id}">Editar</button>
                     <button class="btn btn-danger btn-small delete-pilot-btn" data-pilot-id="${pilot.id}" data-pilot-name="${pilot.name}">Excluir</button>
                 </div>
@@ -155,6 +218,7 @@ const UI = {
             <div class="card-footer">
                 <button class="btn btn-primary add-expense-btn" data-pilot-id="${pilot.id}">+ Gasto</button>
                 <button class="btn btn-secondary add-reimbursement-btn" data-pilot-id="${pilot.id}">Reembolso</button>
+                <button class="btn btn-secondary btn-small admin-history-btn" data-pilot-id="${pilot.id}" data-pilot-name="${pilot.name}">Histórico</button>
             </div>
         `;
         return card;
@@ -176,9 +240,17 @@ const UI = {
             btn.addEventListener('click', (e) => App.handleOpenEditPilotModal(e.target.dataset.pilotId));
         });
 
-        // NOVO Listener para Excluir
         scope.querySelectorAll('.delete-pilot-btn').forEach(btn => {
             btn.addEventListener('click', (e) => App.handleDeletePilot(e.target.dataset.pilotId, e.target.dataset.pilotName));
+        });
+        
+        // Listener para o Histórico do Admin
+        scope.querySelectorAll('.admin-history-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const pilotId = e.target.dataset.pilotId;
+                const pilotName = e.target.dataset.pilotName;
+                App.handleViewHistory(pilotId, pilotName, 'admin-dashboard-view'); // Vem do admin
+            });
         });
     },
     

@@ -84,7 +84,7 @@ const DB = {
     },
 
     /**
-     * Deleta um piloto (Função de Admin).
+     * Deleta um piloto (Função de Admin). (Versão RLS, sem Edge Function)
      */
     async deletePilot(pilotId) {
         const { error } = await supabase
@@ -148,6 +148,35 @@ const DB = {
             throw new Error(error.message);
         }
     },
+
+    /**
+     * NOVO: Busca o histórico de fechamentos de um piloto.
+     */
+    async getHistory(pilotId) {
+        const { data, error } = await supabase
+            .from('closing_history')
+            .select('*')
+            .eq('pilot_id', pilotId) // Busca pelo ID do piloto
+            .order('month_reference', { ascending: false }); // Do mais novo para o mais antigo
+
+        if (error) {
+            console.error('Erro ao buscar histórico:', error.message);
+            return [];
+        }
+        return data;
+    },
+
+    /**
+     * NOVO: Pega a URL pública de um PDF no Storage.
+     */
+    getPdfUrl(pdfPath) {
+        const { data } = supabase.storage
+            .from('fechamentos') // Nome do seu bucket
+            .getPublicUrl(pdfPath);
+        
+        return data.publicUrl;
+    },
+
 
     // --- LÓGICA DE FECHAMENTO (Função de Admin) ---
 
