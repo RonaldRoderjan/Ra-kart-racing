@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <title>RA Kart Racing</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a1a">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kart Finance">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+    <link rel="icon" href="icons/icon-192x192.png" sizes="192x192">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <section id="login-view" class="view active">
+        <div class="login-container">
+            <h2>RA Kart Racing</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label> <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Entrar</button>
+                <p id="login-error" class="error-message"></p>
+            </form>
+        </div>
+    </section>
+
+    <section id="app-view" class="view">
+        <header class="app-header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <button id="add-pilot-btn" class="btn btn-primary">+ Novo Piloto</button>
+                <button id="logout-btn" class="btn btn-secondary">Sair</button>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <div id="dashboard-loading" class="hidden">Carregando pilotos...</div>
+            
+            <div id="dashboard-grid">
+                </div>
+        </main>
+    </section>
+
+    <div id="pilot-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="pilot-modal">&times;</span>
+            <h3 id="pilot-modal-title">Novo Piloto</h3>
+            <form id="pilot-form">
+                <input type="hidden" id="pilot-id"> <div class="form-group">
+                    <label for="pilot-name">Nome</label>
+                    <input type="text" id="pilot-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="pilot-category">Categoria</label>
+                    <input type="text" id="pilot-category" placeholder="Ex: 125cc, F4, Cadete" required>
+                </div>
+                <div class="form-group">
+                    <label for="pilot-fee">Mensalidade (R$)</label>
+                    <input type="number" id="pilot-fee" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="pilot-closing-date">Data de Fechamento (Dia do mês)</label>
+                    <input type="number" id="pilot-closing-date" min="1" max="31" required>
+                </div>
+                <div class="form-group">
+                    <label for="pilot-obs">Observações</label>
+                    <textarea id="pilot-obs" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="expense-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="expense-modal">&times;</span>
+            <h3>Adicionar Gasto Extra</h3>
+            <form id="expense-form">
+                <input type="hidden" id="expense-pilot-id">
+                <div class="form-group">
+                    <label for="expense-desc">Descrição</label>
+                    <input type="text" id="expense-desc" required>
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount">Valor (R$)</label>
+                    <input type="number" id="expense-amount" step="0.01" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar Gasto</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="reimbursement-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" data-modal-id="reimbursement-modal">&times;</span>
+            <h3>Registrar Reembolso</h3>
+            <form id="reimbursement-form">
+                <input type="hidden" id="reimbursement-pilot-id">
+                <div class="form-group">
+                    <label for="reimbursement-desc">Descrição</label>
+                    <input type="text" id="reimbursement-desc" required>
+                </div>
+                <div class="form-group">
+                    <label for="reimbursement-amount">Valor (R$)</label>
+                    <input type="number" id="reimbursement-amount" step="0.01" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Registrar Reembolso</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script src="js/supabaseClient.js"></script>
+    
+    <script src="js/auth.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/pdf.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script> </body>
+</html>

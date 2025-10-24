@@ -1,0 +1,7 @@
+# .gitignore
+
+# Ignorar o arquivo de configuração de credenciais
+config/config.js
+
+# Ignorar dependências (se houver)
+node_modules/

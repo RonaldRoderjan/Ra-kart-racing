@@ -1,0 +1,304 @@
+/* 1. Variáveis de Tema */
+:root {
+    --color-bg: #1a1a1a;
+    --color-surface: #2c2c2c;
+    --color-surface-light: #3a3a3a;
+    --color-primary: #00c853; /* Verde Acento */
+    --color-secondary: #616161;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #b0b0b0;
+    --color-danger: #ff4d4d;
+    --color-success: #00c853;
+
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. Reset Básico e Globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    line-height: 1.6;
+}
+
+/* 3. Estrutura das "Telas" (Views) */
+.view {
+    display: none; /* Oculto por padrão */
+    min-height: 100vh;
+}
+.view.active {
+    display: block; /* Visível */
+}
+
+/* 4. Estilos de Login */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+.login-container h2 {
+    color: var(--color-primary);
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+}
+#login-form {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--color-surface);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+.error-message {
+    color: var(--color-danger);
+    font-size: 0.9rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* 5. Estilos da Aplicação Principal (Header) */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--color-surface);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+/* Garante que o header não seja coberto pelo "notch" do iPhone */
+@supports (padding-top: env(safe-area-inset-top)) {
+    .app-header {
+        padding-top: calc(1rem + env(safe-area-inset-top));
+    }
+    .dashboard-container {
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    }
+}
+
+.app-header h1 {
+    font-size: 1.5rem;
+}
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* 6. Dashboard (Grid Responsivo) */
+.dashboard-container {
+    padding: 1.5rem;
+}
+#dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile-first: 1 coluna */
+    gap: 1.5rem;
+}
+
+/* 7. Card do Piloto */
+.pilot-card {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+.pilot-card:hover {
+    transform: translateY(-5px);
+}
+.card-header {
+    padding: 1rem 1.5rem;
+    background-color: var(--color-surface-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card-header h3 {
+    font-size: 1.25rem;
+}
+.pilot-category {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    background-color: var(--color-bg);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.card-body {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.data-point {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+.data-point span {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+.data-point.total span {
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.data-point.expenses span {
+    color: var(--color-danger);
+}
+.data-point.reimbursements span {
+    color: var(--color-success);
+}
+.card-footer {
+    padding: 1rem 1.5rem;
+    background-color: var(--color-surface-light);
+    display: flex;
+    gap: 10px;
+}
+
+/* 8. Componentes (Botões, Formulários) */
+.btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.btn-primary {
+    background-color: var(--color-primary);
+    color: #000;
+}
+.btn-primary:hover {
+    background-color: #00e65f;
+}
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text-primary);
+}
+.btn-secondary:hover {
+    background-color: #757575;
+}
+.btn-danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-primary);
+}
+.btn-small {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="email"],
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-surface-light);
+    border-radius: var(--border-radius);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+}
+input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+textarea {
+    resize: vertical;
+}
+
+/* 9. Modal */
+.modal {
+    display: none; /* Oculto por padrão */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    animation: fadeIn 0.3s;
+}
+.modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.modal-content {
+    background-color: var(--color-surface);
+    margin: auto;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: slideIn 0.3s;
+}
+.close-modal {
+    color: var(--color-text-secondary);
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 1.75rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+.close-modal:hover {
+    color: var(--color-text-primary);
+}
+
+/* 10. Animações e Classes Utilitárias */
+.hidden {
+    display: none;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes slideIn {
+    from { transform: translateY(-30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 11. Media Queries (Desktop) */
+@media (min-width: 768px) {
+    #dashboard-grid {
+        /* 2 colunas para tablets */
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .app-header h1 {
+        font-size: 1.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #dashboard-grid {
+        /* 3 colunas para desktops */
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
