@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
+
     <title>Kart Finance</title>
-    <link rel="manifest" href="site.webmanifest"> 
+    <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,8 +16,7 @@
     <section id="login-view" class="view active">
         <div class="login-container">
             <h2>Kart Finance</h2>
-            <form id="login-form">
-                <div class="form-group">
+            <form id="login-form" novalidate> <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required>
                 </div>
@@ -39,11 +38,9 @@
                 <button id="logout-btn" class="btn btn-secondary">Sair</button>
             </div>
         </header>
-
         <main class="dashboard-container">
             <div id="dashboard-loading" class="hidden">Carregando pilotos...</div>
-            <div id="admin-dashboard-grid">
-                </div>
+            <div id="admin-dashboard-grid"></div>
         </main>
     </section>
 
@@ -54,129 +51,81 @@
                 <button id="pilot-logout-btn" class="btn btn-secondary">Sair</button>
             </div>
         </header>
-
         <main class="dashboard-container">
             <div id="pilot-loading" class="hidden">Carregando seus dados...</div>
-            <div id="pilot-content">
-                </div>
+            <div id="pilot-content"></div>
         </main>
     </section>
 
     <section id="history-view" class="view">
         <header class="app-header">
             <h1>Histórico de Fechamentos</h1>
-            <div class="header-actions">
-                </div>
+            <div class="header-actions"></div>
         </header>
-
         <main class="dashboard-container">
             <h2 id="history-pilot-name" style="margin-bottom: 1.5rem;"></h2>
             <div id="history-loading" class="hidden">Carregando histórico...</div>
-            <div id="history-list">
-                </div>
+            <div id="history-list"></div>
         </main>
     </section>
-
 
     <div id="pilot-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal-id="pilot-modal">&times;</span>
             <h3 id="pilot-modal-title">Novo Piloto</h3>
-            <form id="pilot-form">
-                <input type="hidden" id="pilot-id"> <h4>Dados do Piloto</h4>
-                <div class="form-group">
-                    <label for="pilot-name">Nome</label>
-                    <input type="text" id="pilot-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="pilot-category">Categoria</label>
-                    <input type="text" id="pilot-category" placeholder="Ex: 125cc, F4, Cadete"> </div>
-                <div class="form-group">
-                    <label for="pilot-fee">Mensalidade (R$)</label>
-                    <input type="number" id="pilot-fee" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label for="pilot-closing-date">Data de Fechamento (Dia do mês)</label>
-                    <input type="number" id="pilot-closing-date" min="1" max="31" required>
-                </div>
-                <div class="form-group">
-                    <label for="pilot-obs">Observações</label>
-                    <textarea id="pilot-obs" rows="3"></textarea>
-                </div>
-
+            <form id="pilot-form" novalidate>
+                <input type="hidden" id="pilot-id">
+                <h4>Dados do Piloto</h4>
+                <div class="form-group"><label for="pilot-name">Nome</label><input type="text" id="pilot-name" required></div>
+                <div class="form-group"><label for="pilot-category">Categoria</label><input type="text" id="pilot-category" placeholder="Ex: 125cc, F4, Cadete"></div>
+                <div class="form-group"><label for="pilot-fee">Mensalidade (R$)</label><input type="number" id="pilot-fee" step="0.01" required></div>
+                <div class="form-group"><label for="pilot-closing-date">Data Fechamento (1-31)</label><input type="number" id="pilot-closing-date" min="1" max="31" required></div>
+                <div class="form-group"><label for="pilot-obs">Observações</label><textarea id="pilot-obs" rows="3"></textarea></div>
                 <div id="pilot-login-fields">
                     <hr style="border-color: var(--color-surface-light); margin: 20px 0;">
                     <h4>Dados de Login do Piloto</h4>
-                    <div class="form-group">
-                        <label for="pilot-email">Email de Login</label>
-                        <input type="email" id="pilot-email" required> </div>
-                    <div class="form-group">
-                        <label for="pilot-password">Senha de Login (Opcional)</label>
-                        <input type="password" id="pilot-password" placeholder="Deixe em branco para gerar senha temporária">
-                         <small style="color: var(--color-text-secondary); font-size: 0.8rem;">Se gerada, a senha aparecerá em um alerta após salvar.</small>
-                    </div>
+                    <div class="form-group"><label for="pilot-email">Email Login</label><input type="email" id="pilot-email" required></div>
+                    <div class="form-group"><label for="pilot-password">Senha (Opcional)</label><input type="password" id="pilot-password" placeholder="Gerar senha temporária"><small style="color: var(--color-text-secondary); font-size: 0.8rem;">Senha aparecerá em alerta.</small></div>
                 </div>
-
                 <button type="submit" class="btn btn-primary">Salvar Piloto</button>
             </form>
         </div>
     </div>
-
     <div id="expense-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" data-modal-id="expense-modal">&times;</span>
-            <h3>Adicionar Gasto Extra</h3>
-            <form id="expense-form">
+            <span class="close-modal" data-modal-id="expense-modal">&times;</span><h3>Adicionar Gasto Extra</h3>
+            <form id="expense-form" novalidate>
                 <input type="hidden" id="expense-pilot-id">
-                <div class="form-group">
-                    <label for="expense-desc">Descrição</label>
-                    <input type="text" id="expense-desc" required>
-                </div>
-                <div class="form-group">
-                    <label for="expense-amount">Valor (R$)</label>
-                    <input type="number" id="expense-amount" step="0.01" required>
-                </div>
+                <div class="form-group"><label for="expense-desc">Descrição</label><input type="text" id="expense-desc" required></div>
+                <div class="form-group"><label for="expense-amount">Valor (R$)</label><input type="number" id="expense-amount" step="0.01" required></div>
                 <button type="submit" class="btn btn-primary">Adicionar Gasto</button>
             </form>
         </div>
     </div>
-
     <div id="reimbursement-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" data-modal-id="reimbursement-modal">&times;</span>
-            <h3>Registrar Reembolso</h3>
-            <form id="reimbursement-form">
+            <span class="close-modal" data-modal-id="reimbursement-modal">&times;</span><h3>Registrar Reembolso</h3>
+            <form id="reimbursement-form" novalidate>
                 <input type="hidden" id="reimbursement-pilot-id">
-                <div class="form-group">
-                    <label for="reimbursement-desc">Descrição</label>
-                    <input type="text" id="reimbursement-desc" required>
-                </div>
-                <div class="form-group">
-                    <label for="reimbursement-amount">Valor (R$)</label>
-                    <input type="number" id="reimbursement-amount" step="0.01" required>
-                </div>
+                <div class="form-group"><label for="reimbursement-desc">Descrição</label><input type="text" id="reimbursement-desc" required></div>
+                <div class="form-group"><label for="reimbursement-amount">Valor (R$)</label><input type="number" id="reimbursement-amount" step="0.01" required></div>
                 <button type="submit" class="btn btn-primary">Registrar Reembolso</button>
             </form>
         </div>
     </div>
-
     <div id="statement-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" data-modal-id="statement-modal">&times;</span>
             <h3 id="statement-modal-title">Extrato Detalhado do Mês</h3>
-            <div id="statement-modal-content" style="margin-top: 1.5rem;">
-                <p>Carregando extrato...</p> 
-            </div>
+            <div id="statement-modal-content" style="margin-top: 1.5rem;"><p>Carregando extrato...</p></div>
         </div>
     </div>
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script src="js/supabaseClient.js"></script>
-    
     <script src="js/auth.js"></script>
     <script src="js/db.js"></script>
     <script src="js/pdf.js"></script>
